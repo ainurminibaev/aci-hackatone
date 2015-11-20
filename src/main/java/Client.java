@@ -24,6 +24,14 @@ public class Client {
     public static final String CONFIRM_GAME_OVER = "gameOverConfirm";
     public static final String SHUTDOWN = "shutdown";
 
+    public static int LVL;
+    public static int WIDTH;
+    public static int HEIGHT;
+    public static Point current = new Point(0, 0);
+    public static boolean[][] holes;
+    public static boolean first = true;
+    public static boolean iAmFirst = false;
+
 
     public Client(final String address, final int port) throws IOException {
         this.address = address;
@@ -51,8 +59,7 @@ public class Client {
     }
 
     public String getTeamName() {
-        System.out.print("Enter your Team Name:");
-        return keyboard.nextLine();
+        return "HalfByte";
     }
 
     protected boolean handleGameStatus(final String nextMessage)
@@ -64,12 +71,30 @@ public class Client {
         switch (args[0]) {
             case START_GAME:
                 System.out.println("Start the game");
+                LVL = Integer.parseInt(args[1]);
+                WIDTH = Integer.parseInt(args[2]);
+                HEIGHT = Integer.parseInt(args[3]);
+                current.h = Integer.parseInt(args[4]);
+                current.w = Integer.parseInt(args[5]);
+                holes = new boolean[HEIGHT][WIDTH];
+                int traps = Integer.parseInt(args[6]);
+                for (int i = 0; i < traps; traps++) {
+                    holes[Integer.parseInt(args[7 + i * 2])][Integer.parseInt(args[8 + i * 2])] = true;
+                }
                 sendMsg(CONFIRM_START_GAME);
                 break;
             case YOU_MOVE:
+                if (first) {
+                    first = false;
+                    iAmFirst = true;
+                }
                 sendMsg(MY_NEXT_MOVE + " " + getNextMove());
                 break;
             case PLAYER_MOVED:
+                if (first) {
+                    first = false;
+                    iAmFirst = false;
+                }
                 setArgument(args);
                 break;
             case MOVE_OK:
@@ -141,4 +166,39 @@ public class Client {
         };
         new Thread(r).run();
     }
+
+    static class Point {
+        int h, w;
+        Point(int h, int w) {
+            this.h = h;
+            this.w = w;
+        }
+        boolean equals(Point a) {
+            return (h == a.h) && (w == a.w);
+        }
+        static Point min(Point a, Point b) {
+            return a.h == b.h ? (a.w < b.w ? a : b) : (a.h < b.h ? a : b);
+        }
+        static Point max(Point a, Point b) {
+            return a.equals(min(a, b)) ? b : a;
+        }
+
+        public static Integer toInteger(Point a) {
+            return a.h * HEIGHT + a.w;
+        }
+    }
+
+//    class Registry {
+//        Map<Integer, List<Point>> used_edges = new HashMap<>();
+//        void add(Point a, Point b) {
+//            List<Point> points = used_edges.get(Point.toInteger(Point.min(a, b)));
+//            if (points == null)
+//                points = new ArrayList<>();
+//            points.add(Point.max(a, b));
+//        }
+//        boolean has(Point a, Point b) {
+//            List<Point> points = used_edges.get(Point.toInteger(Point.min(a, b)));
+//            return points != null && points.contains(Point.max(a, b));
+//        }
+//    }
 }
