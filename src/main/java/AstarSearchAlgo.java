@@ -13,6 +13,10 @@ public class AstarSearchAlgo {
 
     private int currentY;
 
+    private Integer endPointX;
+
+    private int endPointY;
+
     public AstarSearchAlgo(int xsize, int ysize, boolean[][] holes) {
         nodeMatrix = new Node[xsize][ysize];
         for (int i = 0; i < nodeMatrix.length; i++) {
@@ -28,7 +32,19 @@ public class AstarSearchAlgo {
         this.holes = holes;
     }
 
+    public void initEndPoint(boolean isIAmFirst) {
+        if (isIAmFirst) {
+            endPointX = 0;
+        } else {
+            endPointX = nodeMatrix[0].length;
+        }
+        endPointY = nodeMatrix.length / 2;
+    }
+
     public String getNextMove(int moveX, int moveY, boolean isFirstMove) {
+        if (endPointX == null) {
+            throw new IllegalStateException("invoke init method");
+        }
         Node currentNode = null;
         for (int i = 0; i < nodeMatrix.length; i++) {
             for (int j = 0; j < nodeMatrix[i].length; j++) {
@@ -42,8 +58,8 @@ public class AstarSearchAlgo {
         }
         this.currentX = moveX;
         this.currentY = moveY;
-        AstarSearch(currentNode, nodeMatrix[nodeMatrix.length - 1][nodeMatrix.length - 1]);
-        List<Node> path = printPath(nodeMatrix[nodeMatrix.length - 1][nodeMatrix.length - 1]);
+        AstarSearch(currentNode, nodeMatrix[endPointX][endPointY]);
+        List<Node> path = printPath(nodeMatrix[endPointX][endPointY]);
         if (path.size() > 0) {
             return "" + path.get(1).y + " " + path.get(1).x;
         } else {
