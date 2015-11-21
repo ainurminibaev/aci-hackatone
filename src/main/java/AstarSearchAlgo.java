@@ -26,21 +26,17 @@ public class AstarSearchAlgo {
             }
         }
         this.holes = holes;
-        for (int i = 0; i < nodeMatrix.length; i++) {
-            for (int j = 0; j < nodeMatrix[i].length; j++) {
-                nodeMatrix[i][j].adjacencies = getAdjForNode(i, j, nodeMatrix);
-            }
-        }
         Arrays.stream(nodeMatrix).parallel().flatMap(Arrays::stream).parallel().forEach(it -> {
             it.adjacencies = getAdjForNode(it.x, it.y, nodeMatrix);
         });
     }
 
     public static void main(String[] args) {
-        AstarSearchAlgo algo = new AstarSearchAlgo(5, 7, new boolean[5][7]);
-        Client.Point current = new Client.Point(0, 0);
+        AstarSearchAlgo algo = new AstarSearchAlgo(31, 61, new boolean[31][61]);
+        Client.Point current = new Client.Point(30, 60);
         while (true) {
             String nextMove = algo.getNextMove(current, keyboard.nextInt(), keyboard.nextInt(), false);
+//            String nextMove = algo.getNextMove(current, current.h, current.w, false);
             System.out.println(nextMove);
             if (current.w == 0 || current.h == 0) {
                 nextMove = algo.getNextMove(current, current.h, current.w, false);
@@ -56,7 +52,7 @@ public class AstarSearchAlgo {
         } else {
             endPointY = 0;
         }
-        endPointX = (nodeMatrix.length -1)/ 2;
+        endPointX = (nodeMatrix.length - 1) / 2;
     }
 
     public String getNextMove(Client.Point currentPointClient, int moveX, int moveY, boolean isFirstMove) {
@@ -81,6 +77,7 @@ public class AstarSearchAlgo {
         if (nextStep != null) {
             deleteEdge(this.currentX, this.currentY, nextStep.x, nextStep.y, nodeMatrix);
             deleteEdge(nextStep.x, nextStep.y, this.currentX, this.currentY, nodeMatrix);
+            nextStep.h_scores -= nextStep.h_scores / 5;
             this.currentX = nextStep.x;
             this.currentY = nextStep.y;
             currentPointClient.h = nextStep.x;
@@ -242,7 +239,7 @@ class Node {
     public double g_scores;
     public int x;
     public int y;
-    public final double h_scores;
+    public double h_scores;
     public double f_scores = 0;
     public List<Edge> adjacencies;
     public Node parent;
