@@ -31,6 +31,7 @@ public class Client {
     public static boolean[][] holes;
     public static boolean first = true;
     public static boolean iAmFirst = false;
+    private AstarSearchAlgo algo;
 
 
     public Client(final String address, final int port) throws IOException {
@@ -67,18 +68,17 @@ public class Client {
         System.out.println("get message " + nextMessage);
 
         final String[] args = nextMessage.split(" ");
-        AstarSearchAlgo algo = null;
         switch (args[0]) {
             case START_GAME:
                 System.out.println("Start the game");
                 LVL = Integer.parseInt(args[1]);
                 WIDTH = Integer.parseInt(args[2]);
                 HEIGHT = Integer.parseInt(args[3]);
-                current.h = Integer.parseInt(args[4]);
-                current.w = Integer.parseInt(args[5]);
+                current.h = Integer.parseInt(args[5]);
+                current.w = Integer.parseInt(args[4]);
                 holes = new boolean[HEIGHT][WIDTH];
                 int traps = Integer.parseInt(args[6]);
-                for (int i = 0; i < traps; traps++) {
+                for (int i = 0; i < traps; i++) {
                     holes[Integer.parseInt(args[8 + i * 2])][Integer.parseInt(args[7 + i * 2])] = true;
                 }
                 algo = new AstarSearchAlgo(HEIGHT, WIDTH, holes);
@@ -93,8 +93,9 @@ public class Client {
                     nextMove = algo.getNextMove(current.w, current.h, iAmFirst);
                 }
                 if (nextMove == null) {
-                    nextMove = algo.getNextMove(Integer.parseInt(args[2]), Integer.parseInt(args[1]), false);
+                    nextMove = algo.getNextMove(current.w, current.h, false);
                 }
+                System.out.println(nextMove);
                 sendMsg(MY_NEXT_MOVE + " " + nextMove);
                 break;
             case PLAYER_MOVED:
@@ -104,6 +105,8 @@ public class Client {
                     algo.initEndPoint(iAmFirst);
                 }
                 setArgument(args);
+                current.h = Integer.parseInt(args[2]);
+                current.w = Integer.parseInt(args[1]);
                 break;
             case MOVE_OK:
                 System.out.println("Good to know that I moved OK");

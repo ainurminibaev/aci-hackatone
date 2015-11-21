@@ -24,12 +24,20 @@ public class AstarSearchAlgo {
                 nodeMatrix[i][j] = new Node(i + "," + j, Math.sqrt(Math.pow(nodeMatrix.length - i - 1, 2) + Math.pow(nodeMatrix[0].length - j - 1, 2)), i, j);
             }
         }
+        this.holes = holes;
         for (int i = 0; i < nodeMatrix.length; i++) {
             for (int j = 0; j < nodeMatrix[i].length; j++) {
                 nodeMatrix[i][j].adjacencies = getAdjForNode(i, j, nodeMatrix);
             }
         }
-        this.holes = holes;
+        Arrays.stream(nodeMatrix).parallel().flatMap(Arrays::stream).parallel().forEach(it -> {
+            it.adjacencies = getAdjForNode(it.x, it.y, nodeMatrix);
+        });
+    }
+
+    public static void main(String[] args) {
+        AstarSearchAlgo algo = new AstarSearchAlgo(300, 600, new boolean[300][600]);
+        System.out.println("sdfds");
     }
 
     public void initEndPoint(boolean isIAmFirst) {
@@ -43,7 +51,7 @@ public class AstarSearchAlgo {
 
     public String getNextMove(int moveX, int moveY, boolean isFirstMove) {
         if (endPointX == null) {
-            throw new IllegalStateException("invoke init method");
+            initEndPoint(false);
         }
         Node currentNode = null;
         for (int i = 0; i < nodeMatrix.length; i++) {
@@ -70,24 +78,19 @@ public class AstarSearchAlgo {
         }
     }
 
-    //h scores is the stright-line distance from the current city to Bucharest
-    public static void main(String[] args) {
-
-    }
-
     private static void deleteEnemyEdge(int xWas, int yWas, int xEnemy, int yEnemy, Node[][] nodeMatrix) {
-        ArrayList<Edge> edges = Lists.newArrayList(nodeMatrix[xWas][yWas].adjacencies);
-        ArrayList<Edge> edgesCopy = Lists.newArrayList(nodeMatrix[xWas][yWas].adjacencies);
+        List<Edge> edges = nodeMatrix[xWas][yWas].adjacencies;
+        List<Edge> edgesCopy = Lists.newArrayList(nodeMatrix[xWas][yWas].adjacencies);
         for (Edge edge : edgesCopy) {
             if (edge.target.x == xEnemy && edge.target.y == yEnemy) {
                 edges.remove(edge);
             }
         }
-        nodeMatrix[xWas][yWas].adjacencies = edges.toArray(new Edge[edges.size()]);
+        nodeMatrix[xWas][yWas].adjacencies = edges;
     }
 
-    private Edge[] getAdjForNode(int i, int j, Node[][] nodeMatrix) {
-        List<Edge> edges = new ArrayList<>();
+    private List<Edge> getAdjForNode(int i, int j, Node[][] nodeMatrix) {
+        List<Edge> edges = new ArrayList<>(9);
 
         for (int i1 = i - 1; i1 <= i + 1; i1++) {
             for (int j1 = j - 1; j1 <= j + 1; j1++) {
@@ -102,8 +105,7 @@ public class AstarSearchAlgo {
                 }
             }
         }
-        Edge[] edgesArr = new Edge[edges.size()];
-        return edges.toArray(edgesArr);
+        return edges;
     }
 
     private boolean isErrorTarget(int i1, int j1) {
@@ -194,7 +196,7 @@ class Node {
     public int y;
     public final double h_scores;
     public double f_scores = 0;
-    public Edge[] adjacencies;
+    public List<Edge> adjacencies;
     public Node parent;
 
 
