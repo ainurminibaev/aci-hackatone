@@ -63,23 +63,14 @@ public class AstarSearchAlgo {
         if (endPointX == null) {
             initEndPoint(false);
         }
-        Node currentNode = null;
-        for (int i = 0; i < nodeMatrix.length; i++) {
-            for (int j = 0; j < nodeMatrix[i].length; j++) {
-                if (i == moveX && j == moveY) {
-                    currentNode = nodeMatrix[i][j];
-                    nodeMatrix[i][j].parent = null;
-                    nodeMatrix[i][j].g_scores = 0;
-                }
-            }
-        }
+        Node currentNode = nodeMatrix[moveX][moveY];
         if (!isFirstMove) {
             deleteEdge(this.currentX, this.currentY, moveX, moveY, nodeMatrix);
             deleteEdge(moveX, moveY, this.currentX, this.currentY, nodeMatrix);
         }
         recalculateWeight(nodeMatrix);
         AstarSearch(currentNode, nodeMatrix[endPointX][endPointY]);
-        Node nextStep = printPath(currentNode);
+        Node nextStep = printPath(nodeMatrix[endPointX][endPointY], currentNode);
         for (int i = 0; i < nodeMatrix.length; i++) {
             for (int j = 0; j < nodeMatrix[i].length; j++) {
                 nodeMatrix[i][j].parent = null;
@@ -156,24 +147,30 @@ public class AstarSearchAlgo {
         }
     }
 
-    public Node printPath(Node startPoint) {
-//        List<Node> path = new ArrayList<Node>();
-//        for (Node node = target; node != null; node = node.parent) {
-//            path.add(node);
-//        }
-//        Collections.reverse(path);
-        int i = startPoint.x;
-        int j = startPoint.y;
-        for (int i1 = i - 1; i1 <= i + 1; i1++) {
-            for (int j1 = j - 1; j1 <= j + 1; j1++) {
-                if (i1 >= 0 && i1 < nodeMatrix.length && j1 >= 0 && j1 < nodeMatrix[0].length) {
-                    if (nodeMatrix[i1][j1].parent != null) {
-                        return nodeMatrix[i1][j1];
-                    }
-                }
+    public Node printPath(Node target, Node stopPoint) {
+        List<Node> path = new ArrayList<Node>();
+        for (Node node = target; node != null; node = node.parent) {
+            path.add(node);
+            if (node.x == stopPoint.x && node.y == stopPoint.y) {
+                break;
             }
         }
-        return null;
+        Collections.reverse(path);
+//        int i = startPoint.x;
+//        int j = startPoint.y;
+//        for (int i1 = i - 1; i1 <= i + 1; i1++) {
+//            for (int j1 = j - 1; j1 <= j + 1; j1++) {
+//                if (i1 >= 0 && i1 < nodeMatrix.length && j1 >= 0 && j1 < nodeMatrix[0].length) {
+//                    if (nodeMatrix[i1][j1].parent != null) {
+//                        return nodeMatrix[i1][j1];
+//                    }
+//                }
+//            }
+//        }
+        if (path.size() > 1) {
+            return path.get(1);
+        }
+        return path.get(0);
     }
 
     public void AstarSearch(Node source, Node goal) {
