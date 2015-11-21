@@ -42,6 +42,10 @@ public class AstarSearchAlgo {
         while (true) {
             String nextMove = algo.getNextMove(current, keyboard.nextInt(), keyboard.nextInt(), false);
             System.out.println(nextMove);
+            if (current.w == 0 || current.h == 0) {
+                nextMove = algo.getNextMove(current, current.h, current.w, false);
+                System.out.println(nextMove);
+            }
 //            System.out.println(algo.getNextMove(current, 74, 148, false));
         }
     }
@@ -71,6 +75,7 @@ public class AstarSearchAlgo {
         }
         if (!isFirstMove) {
             deleteEdge(this.currentX, this.currentY, moveX, moveY, nodeMatrix);
+            deleteEdge(moveX, moveY, this.currentX, this.currentY, nodeMatrix);
         }
         recalculateWeight(nodeMatrix);
         AstarSearch(currentNode, nodeMatrix[endPointX][endPointY]);
@@ -84,10 +89,11 @@ public class AstarSearchAlgo {
         System.gc();
         if (nextStep != null) {
             deleteEdge(this.currentX, this.currentY, nextStep.x, nextStep.y, nodeMatrix);
+            deleteEdge(nextStep.x, nextStep.y, this.currentX, this.currentY, nodeMatrix);
             this.currentX = nextStep.x;
             this.currentY = nextStep.y;
-            currentPointClient.h = nextStep.y;
-            currentPointClient.w = nextStep.x;
+            currentPointClient.h = nextStep.x;
+            currentPointClient.w = nextStep.y;
             return "" + nextStep.y + " " + nextStep.x;
         } else {
             System.out.println("Cannot resolve step :(");
@@ -248,7 +254,7 @@ class Node {
     }
 
     public String toString() {
-        return "" + value;
+        return "" + value + ": " + x + "," + y;
     }
 }
 
@@ -259,5 +265,12 @@ class Edge {
     public Edge(Node targetNode, double costVal) {
         target = targetNode;
         cost = costVal;
+    }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "target=" + target +
+                '}';
     }
 }
