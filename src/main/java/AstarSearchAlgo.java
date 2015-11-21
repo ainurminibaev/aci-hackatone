@@ -52,11 +52,11 @@ public class AstarSearchAlgo {
 
     public void initEndPoint(boolean isIAmFirst) {
         if (isIAmFirst) {
-            endPointX = nodeMatrix.length - 1;
+            endPointY = nodeMatrix[0].length - 1;
         } else {
-            endPointX = 0;
+            endPointY = 0;
         }
-        endPointY = nodeMatrix[0].length / 2;
+        endPointX = (nodeMatrix.length -1)/ 2;
     }
 
     public String getNextMove(Client.Point currentPointClient, int moveX, int moveY, boolean isFirstMove) {

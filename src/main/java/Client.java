@@ -108,7 +108,9 @@ public class Client {
                     iAmFirst = false;
                     algo.initEndPoint(iAmFirst);
                 } else {
-                    algo.deletePoint(newH, newW);
+                    if (newH != -1 && newW != -1) {
+                        algo.deletePoint(newH, newW);
+                    }
                 }
                 setArgument(args);
                 current.h = newH;
