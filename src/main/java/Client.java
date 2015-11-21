@@ -66,7 +66,17 @@ public class Client {
     protected boolean handleGameStatus(final String nextMessage)
             throws IOException {
         System.out.println("get message " + nextMessage);
+        int sprevPos1;
+        int sprevPos2;
 
+        int sprevPos3;
+        int sprevPos4;
+
+        int sprevPos5;
+        int sprevPos6;
+
+        int sprevPos7;
+        int sprevPos8;
         final String[] args = nextMessage.split(" ");
         switch (args[0]) {
             case START_GAME:
@@ -83,7 +93,19 @@ public class Client {
                 for (int i = 0; i < traps; i++) {
                     holes[Integer.parseInt(args[8 + i * 2])][Integer.parseInt(args[7 + i * 2])] = true;
                 }
-                algo = new AstarSearchAlgo(HEIGHT, WIDTH, holes);
+                sprevPos1 = Integer.parseInt(args[8 + (traps - 1) * 2]);
+                sprevPos2 = Integer.parseInt(args[7 + (traps - 1) * 2]);
+
+                sprevPos3 = Integer.parseInt(args[10 + (traps - 1) * 2]);
+                sprevPos4 = Integer.parseInt(args[9 + (traps - 1) * 2]);
+
+                sprevPos5 = Integer.parseInt(args[12 + (traps - 1) * 2]);
+                sprevPos6 = Integer.parseInt(args[11 + (traps - 1) * 2]);
+
+                sprevPos7 = Integer.parseInt(args[14 + (traps - 1) * 2]);
+                sprevPos8 = Integer.parseInt(args[12 + (traps - 1) * 2]);
+
+                algo = new AstarSearchAlgo(HEIGHT, WIDTH, holes, sprevPos1, sprevPos2, sprevPos3, sprevPos4, sprevPos5, sprevPos6, sprevPos7, sprevPos8);
                 sendMsg(CONFIRM_START_GAME);
                 break;
             case YOU_MOVE:
@@ -97,12 +119,24 @@ public class Client {
                 if (nextMove == null) {
                     nextMove = algo.getNextMove(current, current.h, current.w, false);
                 }
+                String sprevsXY = algo.getSprevPositions();
                 System.out.println(nextMove);
-                sendMsg(MY_NEXT_MOVE + " " + nextMove);
+                sendMsg(MY_NEXT_MOVE + " " + nextMove + " " + sprevsXY);
                 break;
             case PLAYER_MOVED:
                 int newH = Integer.parseInt(args[2]);
                 int newW = Integer.parseInt(args[1]);
+                sprevPos1 = Integer.parseInt(args[4]);
+                sprevPos2 = Integer.parseInt(args[3]);
+
+                sprevPos3 = Integer.parseInt(args[6]);
+                sprevPos4 = Integer.parseInt(args[5]);
+
+                sprevPos5 = Integer.parseInt(args[8]);
+                sprevPos6 = Integer.parseInt(args[7]);
+
+                sprevPos7 = Integer.parseInt(args[10]);
+                sprevPos8 = Integer.parseInt(args[9]);
                 if (first) {
                     first = false;
                     iAmFirst = false;
@@ -112,6 +146,7 @@ public class Client {
                         algo.deletePoint(newH, newW);
                     }
                 }
+                algo.updateSprevs(sprevPos1, sprevPos2, sprevPos3, sprevPos4, sprevPos5, sprevPos6, sprevPos7, sprevPos8);
                 setArgument(args);
                 current.h = newH;
                 current.w = newW;

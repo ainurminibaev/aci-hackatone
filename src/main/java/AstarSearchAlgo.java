@@ -1,3 +1,4 @@
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import java.util.*;
@@ -17,7 +18,27 @@ public class AstarSearchAlgo {
 
     private int endPointY;
 
-    public AstarSearchAlgo(int xsize, int ysize, boolean[][] holes) {
+    private int sprev1X;
+    private int sprev1Y;
+
+    private int sprev2X;
+    private int sprev2Y;
+
+    private int sprev3X;
+    private int sprev3Y;
+
+    private int sprev4X;
+    private int sprev4Y;
+
+    private int[] p1sprevsArr;
+
+    private int[] p2sprevsArr;
+
+    private int myIndex = 0;
+    private boolean isIAmFirst;
+
+
+    public AstarSearchAlgo(int xsize, int ysize, boolean[][] holes, int ensprev1X, int ensprev1Y, int ensprev2X, int ensprev2Y, int ensprev3X, int ensprev3Y, int ensprev4X, int ensprev4Y) {
         nodeMatrix = new Node[xsize][ysize];
         int code = 0;
         for (int i = 0; i < nodeMatrix.length; i++) {
@@ -29,10 +50,28 @@ public class AstarSearchAlgo {
         Arrays.stream(nodeMatrix).parallel().flatMap(Arrays::stream).parallel().forEach(it -> {
             it.adjacencies = getAdjForNode(it.x, it.y, nodeMatrix);
         });
+        updateSprevs(ensprev1X, ensprev1Y, ensprev2X, ensprev2Y, ensprev3X, ensprev3Y, ensprev4X, ensprev4Y);
+    }
+
+    public void updateSprevs(int ensprev1X, int ensprev1Y, int ensprev2X, int ensprev2Y, int ensprev3X, int ensprev3Y, int ensprev4X, int ensprev4Y) {
+        this.sprev1X = ensprev1X;
+        this.sprev1Y = ensprev1Y;
+
+        this.sprev2X = ensprev2X;
+        this.sprev2Y = ensprev2Y;
+
+        this.sprev3X = ensprev3X;
+        this.sprev3Y = ensprev3Y;
+
+        this.sprev4X = ensprev4X;
+        this.sprev4Y = ensprev4Y;
+
+        this.p1sprevsArr = new int[]{ensprev1X, ensprev1Y, ensprev2X, ensprev2Y};
+        this.p2sprevsArr = new int[]{ensprev3X, ensprev3Y, ensprev4X, ensprev4Y};
     }
 
     public static void main(String[] args) {
-        AstarSearchAlgo algo = new AstarSearchAlgo(31, 61, new boolean[31][61]);
+        AstarSearchAlgo algo = new AstarSearchAlgo(31, 61, new boolean[31][61], 10, 10, 11, 11, 12, 12, 13, 13);
         Client.Point current = new Client.Point(30, 60);
         while (true) {
             String nextMove = algo.getNextMove(current, keyboard.nextInt(), keyboard.nextInt(), false);
@@ -47,7 +86,8 @@ public class AstarSearchAlgo {
     }
 
     public void initEndPoint(boolean isIAmFirst) {
-        if (isIAmFirst) {
+        this.isIAmFirst = isIAmFirst;
+        if (this.isIAmFirst) {
             endPointY = nodeMatrix[0].length - 1;
         } else {
             endPointY = 0;
@@ -59,6 +99,7 @@ public class AstarSearchAlgo {
         if (endPointX == null) {
             initEndPoint(false);
         }
+        moveMySprevs(moveX, moveY);
         Node currentNode = nodeMatrix[moveX][moveY];
         if (!isFirstMove) {
             deleteEdge(this.currentX, this.currentY, moveX, moveY, nodeMatrix);
@@ -88,6 +129,42 @@ public class AstarSearchAlgo {
             final int x = keyboard.nextInt();
             final int y = keyboard.nextInt();
             return "" + x + " " + y;
+        }
+    }
+
+    private void moveMySprevs(int moveX, int moveY) {
+        int[] mySprevs = null;
+        if (isIAmFirst) {
+            mySprevs = this.p1sprevsArr;
+        } else {
+            mySprevs = this.p2sprevsArr;
+        }
+        if (mySprevs[0] > endPointX + 1) {
+            mySprevs[0]--;
+        }
+        if (mySprevs[0] < endPointX + 1) {
+            mySprevs[0]++;
+        }
+        if (mySprevs[1] < endPointY) {
+            mySprevs[1]++;
+        }
+
+        if (mySprevs[1] > endPointY) {
+            mySprevs[1]--;
+        }
+
+        if (mySprevs[2] > endPointX - 1) {
+            mySprevs[2]--;
+        }
+        if (mySprevs[2] < endPointX - 1) {
+            mySprevs[2]++;
+        }
+        if (mySprevs[3] < endPointY) {
+            mySprevs[3]++;
+        }
+
+        if (mySprevs[3] > endPointY) {
+            mySprevs[3]--;
         }
     }
 
@@ -231,6 +308,13 @@ public class AstarSearchAlgo {
     public void deletePoint(int newH, int newW) {
         deleteEdge(this.currentX, this.currentY, newH, newW, nodeMatrix);
         deleteEdge(newH, newW, this.currentX, this.currentY, nodeMatrix);
+    }
+
+    public String getSprevPositions() {
+        Object[] arr = new Object[]{
+                sprev1Y, sprev1X, sprev2Y, sprev2X
+        };
+        return Joiner.on(" ").join(arr);
     }
 }
 
