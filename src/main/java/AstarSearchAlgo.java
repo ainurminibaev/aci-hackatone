@@ -18,18 +18,6 @@ public class AstarSearchAlgo {
 
     private int endPointY;
 
-    private int sprev1X;
-    private int sprev1Y;
-
-    private int sprev2X;
-    private int sprev2Y;
-
-    private int sprev3X;
-    private int sprev3Y;
-
-    private int sprev4X;
-    private int sprev4Y;
-
     private int[] p1sprevsArr;
 
     private int[] p2sprevsArr;
@@ -54,17 +42,6 @@ public class AstarSearchAlgo {
     }
 
     public void updateSprevs(int ensprev1X, int ensprev1Y, int ensprev2X, int ensprev2Y, int ensprev3X, int ensprev3Y, int ensprev4X, int ensprev4Y) {
-        this.sprev1X = ensprev1X;
-        this.sprev1Y = ensprev1Y;
-
-        this.sprev2X = ensprev2X;
-        this.sprev2Y = ensprev2Y;
-
-        this.sprev3X = ensprev3X;
-        this.sprev3Y = ensprev3Y;
-
-        this.sprev4X = ensprev4X;
-        this.sprev4Y = ensprev4Y;
 
         this.p1sprevsArr = new int[]{ensprev1X, ensprev1Y, ensprev2X, ensprev2Y};
         this.p2sprevsArr = new int[]{ensprev3X, ensprev3Y, ensprev4X, ensprev4Y};
@@ -230,17 +207,6 @@ public class AstarSearchAlgo {
             }
         }
         Collections.reverse(path);
-//        int i = startPoint.x;
-//        int j = startPoint.y;
-//        for (int i1 = i - 1; i1 <= i + 1; i1++) {
-//            for (int j1 = j - 1; j1 <= j + 1; j1++) {
-//                if (i1 >= 0 && i1 < nodeMatrix.length && j1 >= 0 && j1 < nodeMatrix[0].length) {
-//                    if (nodeMatrix[i1][j1].parent != null) {
-//                        return nodeMatrix[i1][j1];
-//                    }
-//                }
-//            }
-//        }
         if (path.size() > 1) {
             return path.get(1);
         }
@@ -311,10 +277,13 @@ public class AstarSearchAlgo {
     }
 
     public String getSprevPositions() {
-        Object[] arr = new Object[]{
-                sprev1Y, sprev1X, sprev2Y, sprev2X
-        };
-        return Joiner.on(" ").join(arr);
+        int[] arr = null;
+        if (isIAmFirst) {
+            arr = p1sprevsArr;
+        } else {
+            arr = p2sprevsArr;
+        }
+        return Joiner.on(" ").join(new Object[]{arr[0], arr[1], arr[2], arr[3]});
     }
 }
 
