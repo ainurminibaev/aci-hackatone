@@ -60,7 +60,7 @@ public class Client {
     }
 
     public String getTeamName() {
-        return "HalfByte";
+        return "HalfByte1";
     }
 
     protected boolean handleGameStatus(final String nextMessage)
@@ -77,6 +77,8 @@ public class Client {
                 current.h = Integer.parseInt(args[5]);
                 current.w = Integer.parseInt(args[4]);
                 holes = new boolean[HEIGHT][WIDTH];
+                first = true;
+                iAmFirst = false;
                 int traps = Integer.parseInt(args[6]);
                 for (int i = 0; i < traps; i++) {
                     holes[Integer.parseInt(args[8 + i * 2])][Integer.parseInt(args[7 + i * 2])] = true;
@@ -90,10 +92,10 @@ public class Client {
                     first = false;
                     iAmFirst = true;
                     algo.initEndPoint(iAmFirst);
-                    nextMove = algo.getNextMove(current.w, current.h, iAmFirst);
+                    nextMove = algo.getNextMove(current, current.h, current.w, iAmFirst);
                 }
                 if (nextMove == null) {
-                    nextMove = algo.getNextMove(current.w, current.h, false);
+                    nextMove = algo.getNextMove(current, current.h, current.w, false);
                 }
                 System.out.println(nextMove);
                 sendMsg(MY_NEXT_MOVE + " " + nextMove);

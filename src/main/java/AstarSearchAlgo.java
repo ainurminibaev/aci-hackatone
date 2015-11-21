@@ -19,9 +19,10 @@ public class AstarSearchAlgo {
 
     public AstarSearchAlgo(int xsize, int ysize, boolean[][] holes) {
         nodeMatrix = new Node[xsize][ysize];
+        int code = 0;
         for (int i = 0; i < nodeMatrix.length; i++) {
             for (int j = 0; j < nodeMatrix[i].length; j++) {
-                nodeMatrix[i][j] = new Node(i + "," + j, Math.sqrt(Math.pow(nodeMatrix.length - i - 1, 2) + Math.pow(nodeMatrix[0].length - j - 1, 2)), i, j);
+                nodeMatrix[i][j] = new Node(code++, Math.sqrt(Math.pow(nodeMatrix.length - i - 1, 2) + Math.pow(nodeMatrix[0].length - j - 1, 2)), i, j);
             }
         }
         this.holes = holes;
@@ -36,20 +37,25 @@ public class AstarSearchAlgo {
     }
 
     public static void main(String[] args) {
-        AstarSearchAlgo algo = new AstarSearchAlgo(300, 600, new boolean[300][600]);
-        System.out.println("sdfds");
+        AstarSearchAlgo algo = new AstarSearchAlgo(31, 61, new boolean[31][61]);
+        Client.Point current = new Client.Point(0, 0);
+        while (true) {
+            String nextMove = algo.getNextMove(current, keyboard.nextInt(), keyboard.nextInt(), false);
+            System.out.println(nextMove);
+//            System.out.println(algo.getNextMove(current, 74, 148, false));
+        }
     }
 
     public void initEndPoint(boolean isIAmFirst) {
         if (isIAmFirst) {
-            endPointX = 0;
+            endPointY = 0;
         } else {
-            endPointX = nodeMatrix[0].length;
+            endPointY = nodeMatrix[0].length - 1;
         }
-        endPointY = nodeMatrix.length / 2;
+        endPointX = nodeMatrix.length / 2;
     }
 
-    public String getNextMove(int moveX, int moveY, boolean isFirstMove) {
+    public String getNextMove(Client.Point currentPointClient, int moveX, int moveY, boolean isFirstMove) {
         if (endPointX == null) {
             initEndPoint(false);
         }
@@ -58,32 +64,49 @@ public class AstarSearchAlgo {
             for (int j = 0; j < nodeMatrix[i].length; j++) {
                 if (i == moveX && j == moveY) {
                     currentNode = nodeMatrix[i][j];
+                    nodeMatrix[i][j].parent = null;
+                    nodeMatrix[i][j].g_scores = 0;
                 }
             }
         }
         if (!isFirstMove) {
-            deleteEnemyEdge(this.currentX, this.currentY, moveX, moveY, nodeMatrix);
+            deleteEdge(this.currentX, this.currentY, moveX, moveY, nodeMatrix);
         }
-        this.currentX = moveX;
-        this.currentY = moveY;
+        recalculateWeight(nodeMatrix);
         AstarSearch(currentNode, nodeMatrix[endPointX][endPointY]);
-        List<Node> path = printPath(nodeMatrix[endPointX][endPointY]);
-        if (path.size() > 0) {
-            return "" + path.get(1).y + " " + path.get(1).x;
+        Node nextStep = printPath(currentNode);
+        for (int i = 0; i < nodeMatrix.length; i++) {
+            for (int j = 0; j < nodeMatrix[i].length; j++) {
+                nodeMatrix[i][j].parent = null;
+                nodeMatrix[i][j].g_scores = 0;
+            }
+        }
+        System.gc();
+        if (nextStep != null) {
+            deleteEdge(this.currentX, this.currentY, nextStep.x, nextStep.y, nodeMatrix);
+            this.currentX = nextStep.x;
+            this.currentY = nextStep.y;
+            currentPointClient.h = nextStep.y;
+            currentPointClient.w = nextStep.x;
+            return "" + nextStep.y + " " + nextStep.x;
         } else {
-            //TODO generate some;
+            System.out.println("Cannot resolve step :(");
             final int x = keyboard.nextInt();
             final int y = keyboard.nextInt();
             return "" + x + " " + y;
         }
     }
 
-    private static void deleteEnemyEdge(int xWas, int yWas, int xEnemy, int yEnemy, Node[][] nodeMatrix) {
+    private void recalculateWeight(Node[][] nodeMatrix) {
+
+    }
+
+    private static void deleteEdge(int xWas, int yWas, int xEnemy, int yEnemy, Node[][] nodeMatrix) {
         List<Edge> edges = nodeMatrix[xWas][yWas].adjacencies;
         List<Edge> edgesCopy = Lists.newArrayList(nodeMatrix[xWas][yWas].adjacencies);
-        for (Edge edge : edgesCopy) {
-            if (edge.target.x == xEnemy && edge.target.y == yEnemy) {
-                edges.remove(edge);
+        for (int i = 0; i < edgesCopy.size(); i++) {
+            if (edgesCopy.get(i).target.x == xEnemy && edgesCopy.get(i).target.y == yEnemy) {
+                edges.remove(edgesCopy.get(i));
             }
         }
         nodeMatrix[xWas][yWas].adjacencies = edges;
@@ -94,7 +117,11 @@ public class AstarSearchAlgo {
 
         for (int i1 = i - 1; i1 <= i + 1; i1++) {
             for (int j1 = j - 1; j1 <= j + 1; j1++) {
-                if (i == i1 && j == j1) {
+                if (i == i1 && j == j1
+                        || (i == i1 && i == 0)
+                        || (j == j1 && j == 0)
+                        || (i == i1 && i == nodeMatrix[0].length - 1)
+                        || (j == j1 && j == nodeMatrix.length - 1)) {
                     continue;
                 }
                 if (i1 >= 0 && i1 < nodeMatrix.length && j1 >= 0 && j1 < nodeMatrix[0].length) {
@@ -123,16 +150,27 @@ public class AstarSearchAlgo {
         }
     }
 
-    public static List<Node> printPath(Node target) {
-        List<Node> path = new ArrayList<Node>();
-        for (Node node = target; node != null; node = node.parent) {
-            path.add(node);
+    public Node printPath(Node startPoint) {
+//        List<Node> path = new ArrayList<Node>();
+//        for (Node node = target; node != null; node = node.parent) {
+//            path.add(node);
+//        }
+//        Collections.reverse(path);
+        int i = startPoint.x;
+        int j = startPoint.y;
+        for (int i1 = i - 1; i1 <= i + 1; i1++) {
+            for (int j1 = j - 1; j1 <= j + 1; j1++) {
+                if (i1 >= 0 && i1 < nodeMatrix.length && j1 >= 0 && j1 < nodeMatrix[0].length) {
+                    if (nodeMatrix[i1][j1].parent != null) {
+                        return nodeMatrix[i1][j1];
+                    }
+                }
+            }
         }
-        Collections.reverse(path);
-        return path;
+        return null;
     }
 
-    public static void AstarSearch(Node source, Node goal) {
+    public void AstarSearch(Node source, Node goal) {
         Set<Node> explored = new HashSet<Node>();
         PriorityQueue<Node> queue = new PriorityQueue<Node>(20,
                 new Comparator<Node>() {
@@ -157,7 +195,7 @@ public class AstarSearchAlgo {
             Node current = queue.poll();
             explored.add(current);
             //goal found
-            if (current.value.equals(goal.value)) {
+            if (current.value == goal.value) {
                 found = true;
             }
             //check every child of current node
@@ -186,11 +224,13 @@ public class AstarSearchAlgo {
                 }
             }
         }
+        explored.clear();
+        queue.clear();
     }
 }
 
 class Node {
-    public final String value;
+    public final int value;
     public double g_scores;
     public int x;
     public int y;
@@ -200,7 +240,7 @@ class Node {
     public Node parent;
 
 
-    public Node(String value, double h_scores, int x, int y) {
+    public Node(int value, double h_scores, int x, int y) {
         this.value = value;
         this.h_scores = h_scores;
         this.x = x;
@@ -208,7 +248,7 @@ class Node {
     }
 
     public String toString() {
-        return value;
+        return "" + value;
     }
 }
 
