@@ -52,11 +52,11 @@ public class AstarSearchAlgo {
 
     public void initEndPoint(boolean isIAmFirst) {
         if (isIAmFirst) {
-            endPointY = nodeMatrix[0].length - 1;
+            endPointX = nodeMatrix.length - 1;
         } else {
-            endPointY = 0;
+            endPointX = 0;
         }
-        endPointX = nodeMatrix.length / 2;
+        endPointY = nodeMatrix[0].length / 2;
     }
 
     public String getNextMove(Client.Point currentPointClient, int moveX, int moveY, boolean isFirstMove) {
@@ -229,6 +229,11 @@ public class AstarSearchAlgo {
         }
         explored.clear();
         queue.clear();
+    }
+
+    public void deletePoint(int newH, int newW) {
+        deleteEdge(this.currentX, this.currentY, newH, newW, nodeMatrix);
+        deleteEdge(newH, newW, this.currentX, this.currentY, nodeMatrix);
     }
 }
 

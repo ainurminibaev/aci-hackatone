@@ -101,14 +101,18 @@ public class Client {
                 sendMsg(MY_NEXT_MOVE + " " + nextMove);
                 break;
             case PLAYER_MOVED:
+                int newH = Integer.parseInt(args[2]);
+                int newW = Integer.parseInt(args[1]);
                 if (first) {
                     first = false;
                     iAmFirst = false;
                     algo.initEndPoint(iAmFirst);
+                } else {
+                    algo.deletePoint(newH, newW);
                 }
                 setArgument(args);
-                current.h = Integer.parseInt(args[2]);
-                current.w = Integer.parseInt(args[1]);
+                current.h = newH;
+                current.w = newW;
                 break;
             case MOVE_OK:
                 System.out.println("Good to know that I moved OK");
