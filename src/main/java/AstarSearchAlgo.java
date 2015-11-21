@@ -22,7 +22,6 @@ public class AstarSearchAlgo {
 
     private int[] p2sprevsArr;
 
-    private int myIndex = 0;
     private boolean isIAmFirst;
 
 
@@ -45,6 +44,14 @@ public class AstarSearchAlgo {
 
         this.p1sprevsArr = new int[]{ensprev1X, ensprev1Y, ensprev2X, ensprev2Y};
         this.p2sprevsArr = new int[]{ensprev3X, ensprev3Y, ensprev4X, ensprev4Y};
+    }
+
+    public void updateSprevsOfEvemy(int ensprev1X, int ensprev1Y, int ensprev2X, int ensprev2Y) {
+        if (isIAmFirst) {
+            this.p2sprevsArr = new int[]{ensprev1X, ensprev1Y, ensprev2X, ensprev2Y};
+        } else {
+            this.p1sprevsArr = new int[]{ensprev1X, ensprev1Y, ensprev2X, ensprev2Y};
+        }
     }
 
     public static void main(String[] args) {
@@ -122,10 +129,10 @@ public class AstarSearchAlgo {
         if (mySprevs[0] < endPointX + 1) {
             mySprevs[0]++;
         }
+
         if (mySprevs[1] < endPointY) {
             mySprevs[1]++;
         }
-
         if (mySprevs[1] > endPointY) {
             mySprevs[1]--;
         }
@@ -136,6 +143,7 @@ public class AstarSearchAlgo {
         if (mySprevs[2] < endPointX - 1) {
             mySprevs[2]++;
         }
+
         if (mySprevs[3] < endPointY) {
             mySprevs[3]++;
         }
@@ -283,7 +291,7 @@ public class AstarSearchAlgo {
         } else {
             arr = p2sprevsArr;
         }
-        return Joiner.on(" ").join(new Object[]{arr[0], arr[1], arr[2], arr[3]});
+        return Joiner.on(" ").join(new Object[]{arr[1], arr[0], arr[3], arr[2]});
     }
 }
 

@@ -131,12 +131,6 @@ public class Client {
 
                 sprevPos3 = Integer.parseInt(args[6]);
                 sprevPos4 = Integer.parseInt(args[5]);
-
-                sprevPos5 = Integer.parseInt(args[8]);
-                sprevPos6 = Integer.parseInt(args[7]);
-
-                sprevPos7 = Integer.parseInt(args[10]);
-                sprevPos8 = Integer.parseInt(args[9]);
                 if (first) {
                     first = false;
                     iAmFirst = false;
@@ -146,7 +140,7 @@ public class Client {
                         algo.deletePoint(newH, newW);
                     }
                 }
-                algo.updateSprevs(sprevPos1, sprevPos2, sprevPos3, sprevPos4, sprevPos5, sprevPos6, sprevPos7, sprevPos8);
+                algo.updateSprevsOfEvemy(sprevPos1, sprevPos2, sprevPos3, sprevPos4);
                 setArgument(args);
                 current.h = newH;
                 current.w = newW;
