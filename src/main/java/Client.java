@@ -60,7 +60,7 @@ public class Client {
     }
 
     public String getTeamName() {
-        return "HalfByte1";
+        return "HalfByte";
     }
 
     protected boolean handleGameStatus(final String nextMessage)

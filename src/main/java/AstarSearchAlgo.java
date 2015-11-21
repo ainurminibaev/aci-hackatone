@@ -37,7 +37,7 @@ public class AstarSearchAlgo {
     }
 
     public static void main(String[] args) {
-        AstarSearchAlgo algo = new AstarSearchAlgo(31, 61, new boolean[31][61]);
+        AstarSearchAlgo algo = new AstarSearchAlgo(5, 7, new boolean[5][7]);
         Client.Point current = new Client.Point(0, 0);
         while (true) {
             String nextMove = algo.getNextMove(current, keyboard.nextInt(), keyboard.nextInt(), false);
@@ -48,9 +48,9 @@ public class AstarSearchAlgo {
 
     public void initEndPoint(boolean isIAmFirst) {
         if (isIAmFirst) {
-            endPointY = 0;
-        } else {
             endPointY = nodeMatrix[0].length - 1;
+        } else {
+            endPointY = 0;
         }
         endPointX = nodeMatrix.length / 2;
     }
@@ -140,8 +140,8 @@ public class AstarSearchAlgo {
     }
 
     private static double calculateWeight(int i, int j, int imax, int jmax) {
-        if (i == 0 || j == 0 || i == imax - 1 || j == jmax - 1) {
-            return 0.0001;
+        if (i == 0 || j == 0 || i == imax - 1 || j == jmax - 1 || i == 1 || j == 1 || i == imax - 2 || j == jmax - 2) {
+            return 0.001;
         }
         if (j / 2 <= imax / 2) {
             return jmax - j;
