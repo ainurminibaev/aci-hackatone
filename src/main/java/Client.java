@@ -67,7 +67,7 @@ public class Client {
         System.out.println("get message " + nextMessage);
 
         final String[] args = nextMessage.split(" ");
-
+        AstarSearchAlgo algo = null;
         switch (args[0]) {
             case START_GAME:
                 System.out.println("Start the game");
@@ -79,21 +79,29 @@ public class Client {
                 holes = new boolean[HEIGHT][WIDTH];
                 int traps = Integer.parseInt(args[6]);
                 for (int i = 0; i < traps; traps++) {
-                    holes[Integer.parseInt(args[7 + i * 2])][Integer.parseInt(args[8 + i * 2])] = true;
+                    holes[Integer.parseInt(args[8 + i * 2])][Integer.parseInt(args[7 + i * 2])] = true;
                 }
+                algo = new AstarSearchAlgo(HEIGHT, WIDTH, holes);
                 sendMsg(CONFIRM_START_GAME);
                 break;
             case YOU_MOVE:
+                String nextMove = null;
                 if (first) {
                     first = false;
                     iAmFirst = true;
+                    algo.initEndPoint(iAmFirst);
+                    nextMove = algo.getNextMove(current.w, current.h, iAmFirst);
                 }
-                sendMsg(MY_NEXT_MOVE + " " + getNextMove());
+                if (nextMove == null) {
+                    nextMove = algo.getNextMove(Integer.parseInt(args[2]), Integer.parseInt(args[1]), false);
+                }
+                sendMsg(MY_NEXT_MOVE + " " + nextMove);
                 break;
             case PLAYER_MOVED:
                 if (first) {
                     first = false;
                     iAmFirst = false;
+                    algo.initEndPoint(iAmFirst);
                 }
                 setArgument(args);
                 break;
@@ -169,16 +177,20 @@ public class Client {
 
     static class Point {
         int h, w;
+
         Point(int h, int w) {
             this.h = h;
             this.w = w;
         }
+
         boolean equals(Point a) {
             return (h == a.h) && (w == a.w);
         }
+
         static Point min(Point a, Point b) {
             return a.h == b.h ? (a.w < b.w ? a : b) : (a.h < b.h ? a : b);
         }
+
         static Point max(Point a, Point b) {
             return a.equals(min(a, b)) ? b : a;
         }
